@@ -90,7 +90,7 @@ function Navbar() {
   };
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: '#dddd' }}>
+    <AppBar position="static" sx={{ backgroundColor: 'var(--bg-color)',position:'relative',zIndex:1 }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
 
@@ -103,11 +103,11 @@ function Navbar() {
               display: { xs: 'none', md: 'flex' },
 
               fontWeight: 700,
-              color: 'inherit',
+              color: 'var(--text-color)',
               textDecoration: 'none',
             }}
           >
-            <Link to={'/'}>
+            <Link to={'/'} style={{color: 'var(--text-color)'}}>
               My App
             </Link>
           </Typography>
@@ -161,11 +161,11 @@ function Navbar() {
               display: { xs: 'flex', md: 'none' },
               flexGrow: 1,
               fontWeight: 700,
-              color: 'inherit',
+              color: 'var(--text-color)',
               textDecoration: 'none',
             }}
           >
-            <Link to={'/'}>
+            <Link to={'/'} style={{color: 'var(--text-color)'}}>
               My App
             </Link>
           </Typography>
@@ -179,7 +179,7 @@ function Navbar() {
                 <Link key={page.name} to={page.url}>
                   <Button
                     onClick={handleCloseNavMenu}
-                    sx={{ my: 2, color: 'white', display: 'block' }}
+                    sx={{ my: 2, color: 'var(--text-color)', display: 'block' }}
                   >
                     {page.name}
                   </Button>

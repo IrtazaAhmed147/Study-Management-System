@@ -10,7 +10,7 @@ function Home() {
       <Box sx={{ display: 'flex' }}>
 
         <Sidebar />
-        <Box sx={{width: "100%"}}>
+        <Box sx={{width: "100%", backgroundColor:"var(--bg-color)"}}>
 
 
           <Box sx={{ display: 'flex', marginTop: '30px', padding: '20px', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>

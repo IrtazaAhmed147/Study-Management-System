@@ -10,3 +10,11 @@
 a{
   text-decoration: none;
 }
+
+:root {
+  --primary-color: #2A7DE1;
+  --secondary-color: #1AC8DB ;
+  --notification-color: #F4B400 ;
+  --bg-color: #F8FAFC ;
+  --text-color: #1E293B  ;
+}
