@@ -1,9 +1,26 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
 *{
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+ font-family: "Inter", sans-serif !important;
 }
+
 a{
   text-decoration: none !important;
-  
+}
+
+:root {
+  --primary-color: #2A7DE1;
+  /* --primary-color: linear-gradient(135deg, #2A7DE1, #6BB7FF); */
+  --primaryHover-color: #1f6dcb;
+  --secondary-color: #1AC8DB ;
+  --notification-color: #F4B400 ;
+  --bg-color: #F8FAFC ;
+  --text-color: #1E293B  ;
+}
+html {
+  scroll-behavior: smooth;
 }
