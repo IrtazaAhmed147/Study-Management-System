@@ -53,6 +53,20 @@ export const getSinglecourse = async (req, res) => {
     }
 }
 
+
+export const getUserCourses = async (req, res) => {
+    try {
+        
+        const courseData = await course.find({owner:req.user.id});
+        if(!courseData) return errorHandler(res, 404, "course not found")
+        successHandler(res, 200, "course found successfully", courseData)
+    }
+    catch (err) {
+        console.log(err);
+        errorHandler(res, 400, err.message)
+    }
+}
+
 export const deletecourse = async (req, res) => {
     try {
         const courseData = await course.findByIdAndDelete(req.params.id);

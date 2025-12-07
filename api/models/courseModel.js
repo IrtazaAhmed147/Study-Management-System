@@ -13,17 +13,36 @@ const courseSchema = new mongoose.Schema({
     },
     courseCode: {
         type: String,
+         trim: true,
     },
+
     owner: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
         required: true,
-    }, assignments: {
-        type: [String],
-    }, quizzes: {
-        type: [String],
-    }, materials: {
-        type: [String],
     },
+    Members: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+        }
+    ],
+    assignments: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Assignment",
+        }
+    ], quizzes: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Quiz",
+        }
+    ], resources: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Resource",
+        }
+    ],
 },
     { timestamps: true }
 )

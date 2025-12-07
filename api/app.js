@@ -6,6 +6,9 @@ import helmet from "helmet"
 import { userRouter } from './routes/userRoute.js'
 import { authRouter } from './routes/authRoute.js'
 import { courseRouter } from './routes/courseRoute.js'
+import { assignmentsRouter } from './routes/assignmentsRoute.js'
+import { quizRouter } from './routes/quizRoute.js'
+import { resourceRouter } from './routes/resourceRoute.js'
 
 const app = express()
 
@@ -32,6 +35,9 @@ app.use(cors({
 app.use('/api/auth', authRouter)
 app.use('/api/user', userRouter)
 app.use('/api/course',courseRouter)
+app.use('/api/assignment',assignmentsRouter)
+app.use('/api/quiz',quizRouter)
+app.use('/api/resource',resourceRouter)
 
 
 
