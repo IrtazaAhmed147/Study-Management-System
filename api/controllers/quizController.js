@@ -1,4 +1,5 @@
 
+import courseModel from "../models/courseModel.js";
 import quizModel from "../models/quizModel.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { errorHandler, successHandler } from "../utils/responseHandler.js";
@@ -7,7 +8,7 @@ import { errorHandler, successHandler } from "../utils/responseHandler.js";
 export const createQuizs = async (req, res) => {
     try {
         const files = req.files;
-        const { title, description, dueDate, status, courseId } = req.body;
+        const { title, description, dueDate, status } = req.body;
         if (!title.trim() || !description.trim()) {
             return errorHandler(res, 404, "missing fields")
         }
@@ -21,9 +22,17 @@ export const createQuizs = async (req, res) => {
         }
 
         let QuizData = await quizModel({
-            title, description, createdBy: req.user.id, dueDate, status, attachments, courseId, type:"quiz"
+            title, description, createdBy: req.user.id, dueDate, status, attachments, courseId: req.params.id, type: "quiz"
         })
         let savedQuiz = await QuizData.save();
+
+
+        let courseData = await courseModel.findById(req.params.id);
+        courseData?.quizzes?.push(savedQuiz._id);
+
+        await courseModel.findByIdAndUpdate(req.params.id, {
+            $set: { quizzes: courseData?.quizzes }
+        })
         successHandler(res, 200, "Quiz created successfully", savedQuiz)
 
 
@@ -77,7 +86,21 @@ export const getUserQuizs = async (req, res) => {
 
 export const deleteQuiz = async (req, res) => {
     try {
+        let courseData = await courseModel.findById(req.params.courseId);
+        let temp = []
+
+        courseData?.quizzes.forEach((element) => {
+
+            if (element.toString() !== req.params.id) {
+                temp.push(element)
+            }
+
+        });
         await quizModel.findByIdAndDelete(req.params.id);
+
+        await courseModel.findByIdAndUpdate(req.params.courseId, {
+            $set: { quizzes: temp }
+        })
         successHandler(res, 200, "Quizs deleted successfully")
     }
     catch (err) {

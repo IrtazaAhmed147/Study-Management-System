@@ -1,4 +1,5 @@
 import assignmentsModel from "../models/assignmentsModel.js";
+import courseModel from "../models/courseModel.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { errorHandler, successHandler } from "../utils/responseHandler.js";
 
@@ -6,7 +7,7 @@ import { errorHandler, successHandler } from "../utils/responseHandler.js";
 export const createAssignment = async (req, res) => {
     try {
         const files = req.files;
-        const { title, description, dueDate, status, courseId } = req.body;
+        const { title, description, dueDate, status } = req.body;
         if (!title.trim() || !description.trim()) {
             return errorHandler(res, 404, "missing fields")
         }
@@ -20,9 +21,16 @@ export const createAssignment = async (req, res) => {
         }
 
         let assignmentData = await assignmentsModel({
-            title, description, createdBy: req.user.id, dueDate, status, attachments, courseId, type:"assignment"
+            title, description, createdBy: req.user.id, dueDate, status, attachments, courseId: req.params.id, type: "assignment"
         })
         let savedAssignment = await assignmentData.save();
+
+        let courseData = await courseModel.findById(req.params.id);
+        courseData?.assignments?.push(savedAssignment._id);
+
+        await courseModel.findByIdAndUpdate(req.params.id, {
+            $set: { assignments: courseData?.assignments }
+        })
         successHandler(res, 200, "assignment created successfully", savedAssignment)
 
 
@@ -76,8 +84,21 @@ export const getUserAssignments = async (req, res) => {
 
 export const deleteAssignment = async (req, res) => {
     try {
-        const assignmentsData = await assignmentsModel.findByIdAndDelete(req.params.id);
-        successHandler(res, 200, "assignments deleted successfully")
+        let courseData = await courseModel.findById(req.params.courseId);
+        let temp = []
+
+        courseData?.assignments.forEach((element) => {
+
+            if (element.toString() !== req.params.id) {
+                temp.push(element)
+            }
+
+        });
+        await assignmentsModel.findByIdAndDelete(req.params.id);
+        await courseModel.findByIdAndUpdate(req.params.courseId, {
+            $set: { assignments: temp }
+        })
+        successHandler(res, 200, "assignment deleted successfully")
     }
     catch (err) {
         console.log(err);

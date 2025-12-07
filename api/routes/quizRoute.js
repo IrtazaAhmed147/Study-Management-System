@@ -10,12 +10,12 @@ const quizRouter = express.Router()
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage })
 
-quizRouter.post("/create", verifyToken,upload.array('attachments'), createQuizs);
+quizRouter.post("/create/course/:id", verifyToken,upload.array('attachments'), createQuizs);
 quizRouter.get("/all", verifyToken,getAllQuizs);
 quizRouter.get("/:id", verifyToken, getSingleQuiz);
 quizRouter.get("/", verifyToken, getUserQuizs);
 quizRouter.put("/:id", verifyToken, updateQuiz);
-quizRouter.delete("/:id", verifyToken, deleteQuiz);
+quizRouter.delete("/:id/course/:courseId", verifyToken, deleteQuiz);
 
 
 export {quizRouter}

@@ -7,7 +7,7 @@ import { nanoid } from 'nanoid'
 
 export const register = async (req, res, next) => {
 
-    const { username, email, password } = req.body
+    const { username, email, password,fullname } = req.body
 
     if (!username || !email || !password) return errorHandler(res, 400, "missing fields")
 
@@ -30,6 +30,7 @@ export const register = async (req, res, next) => {
         const hash = bcrypt.hashSync(password, salt);
 
         const doc = await User({
+            fullname,
             username,
             email,
             password: hash
@@ -102,7 +103,7 @@ export const login = async (req, res) => {
 
         // 5. If verified → generate login token
         const token = jwt.sign(
-            { id: user._id, username: user.username },
+            { id: user._id, username: user.username ,isAdmin: user.isAdmin},
             process.env.JWT,
             { expiresIn: "7d" }
         );

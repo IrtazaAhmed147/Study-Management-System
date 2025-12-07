@@ -19,3 +19,10 @@ export const verifyToken = (req, res, next) => {
         next()
     })
 }
+
+export const verifyAdmin = (req, res, next) => {
+    if (!req.user || req.user.isAdmin !== true) {
+        return errorHandler(res, 403, "Access denied: Admin only");
+    }
+    next();
+};
