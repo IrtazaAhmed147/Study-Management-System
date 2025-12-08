@@ -2,12 +2,12 @@ import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js'
 import { errorHandler, successHandler } from '../utils/responseHandler.js'
 import bcrypt, { compare } from "bcryptjs";
-import { generateEmail, GenerateToken, VerifyEmailToken } from '../utils/commonFunctions.js';
+import { generateEmail, generateForgotPassEmail, GenerateToken, VerifyEmailToken } from '../utils/commonFunctions.js';
 import { nanoid } from 'nanoid'
 
 export const register = async (req, res, next) => {
 
-    const { username, email, password,fullname } = req.body
+    const { username, email, password, fullname } = req.body
 
     if (!username || !email || !password) return errorHandler(res, 400, "missing fields")
 
@@ -81,14 +81,14 @@ export const login = async (req, res) => {
         }
 
         // 4. Check if user is verified
-        if(user.isSuspend){
+        if (user.isSuspend) {
             return successHandler(
                 res,
                 200,
                 "Your account is suspended"
             );
         }
-        if(user.isDeactivate){
+        if (user.isDeactivate) {
             return successHandler(
                 res,
                 200,
@@ -117,7 +117,7 @@ export const login = async (req, res) => {
 
         // 5. If verified → generate login token
         const token = jwt.sign(
-            { id: user._id, username: user.username ,isAdmin: user.isAdmin},
+            { id: user._id, username: user.username, isAdmin: user.isAdmin },
             process.env.JWT,
             { expiresIn: "7d" }
         );
@@ -195,3 +195,74 @@ export const verifyEmail = async (req, res) => {
         return errorHandler(res, 500, "Something went wrong");
     }
 }
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) return errorHandler(res, 404, "User not found");
+
+        // Create JWT token with 10 min expiry
+        const token = jwt.sign(
+            { userId: user._id },
+            process.env.JWT,
+            { expiresIn: "10m" }
+        );
+
+        // Store token in DB (optional but can be used to invalidate old tokens)
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
+        await user.save();
+
+        const link = `https://myidea.vercel.app/reset-password?token=${token}`;
+        
+        // Send email
+        await generateForgotPassEmail(user.email, link);
+
+        return successHandler(res, 200, "Password reset link sent to your email");
+    } catch (error) {
+        console.error(error);
+        return errorHandler(res, 500, "Something went wrong");
+    }
+};
+export const resetPass = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+        
+        if (!token) return errorHandler(res, 400, "Token is required");
+
+        // Verify JWT token
+        let payload;
+        try {
+            payload = jwt.verify(token, process.env.JWT);
+        } catch (err) {
+            if (err.name === "TokenExpiredError") {
+                return errorHandler(res, 401, "Link has expired");
+            }
+            return errorHandler(res, 400, "Invalid link");
+        }
+
+        // Find user by token and check expiry
+        const user = await User.findOne({
+            _id: payload.userId,
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+        if (!user) return errorHandler(res, 400, "Invalid or expired token");
+
+        // Hash new password
+        const salt = bcrypt.genSaltSync(10);
+        const hash = bcrypt.hashSync(newPassword, salt);
+        user.password = hash;
+
+        // Remove reset token
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+
+        await user.save();
+
+        return successHandler(res, 200, "Password changed successfully");
+    } catch (error) {
+        console.error(error);
+        return errorHandler(res, 500, "Something went wrong");
+    }
+};

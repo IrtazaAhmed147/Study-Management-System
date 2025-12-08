@@ -14,6 +14,39 @@ const emailConfig = {
   },
 };
 
+
+
+
+export const generateForgotPassEmail = async (mail, link) => {
+  const transporter = nodemailer.createTransport(emailConfig);
+
+  const mailOptions = {
+    from: process.env.PORTAL_EMAIL,
+    to: mail,
+    subject: 'Forgot Password',
+    html: `<h2>Password Reset Request</h2>
+<p>Hello,</p>
+<p>We received a request to reset your password for your account.</p>
+<p>Please click the button below to reset your password. This link will expire in 10 minutes.</p>
+<a href="${link}" style="
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+">Reset Password</a>
+<p>Thank you,<br>Your App Team</p>`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    return `OTP sent to ${mail} via email`;
+  } catch (error) {
+    throw `Error sending OTP to ${mail} via email: ${error}`;
+  }
+}
+
 export const generateEmail = async (mail, otp) => {
   const transporter = nodemailer.createTransport(emailConfig);
 
@@ -21,7 +54,12 @@ export const generateEmail = async (mail, otp) => {
     from: process.env.PORTAL_EMAIL,
     to: mail,
     subject: 'OTP Verification',
-    text: `Your OTP is: ${otp}`,
+    html: `<h2>OTP Verification</h2>
+      <p>Hello,</p>
+      <p>Your OTP code is:</p>
+      <h1 style="color: #4CAF50;">${otp}</h1>
+      p>This code is valid for 10 minutes. Please do not share it with anyone.</p>
+      <p>Thank you,<br>Your App Team</p>`,
   };
 
   try {
