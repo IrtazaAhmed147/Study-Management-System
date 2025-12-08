@@ -26,6 +26,8 @@
     "nanoid": "^5.1.5",
     "nodemailer": "^7.0.5",
     "nodemon": "^3.1.10",
-    "streamifier": "^0.1.1"
+    "socket.io": "^4.8.1",
+    "streamifier": "^0.1.1",
+    "web-push": "^3.6.7"
   }
 }

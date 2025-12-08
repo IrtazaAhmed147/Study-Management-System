@@ -1,6 +1,7 @@
 import express from 'express';
-import { deleteUser, getAllUsers,  getSingleUser, updateUser } from '../controllers/userController.js';
+import { deactivateUser, deleteUser, getAllUsers, getSingleUser, suspendUser, updateUser } from '../controllers/userController.js';
 import multer from 'multer';
+import { verifyAdmin, verifyToken } from '../middleware/verifyToken.js';
 
 const userRouter = express.Router();
 
@@ -23,10 +24,12 @@ const upload = multer({ storage: storage })
 // router.post('/', verifyToken, upload.array('image',10), imageUpload)
 
 
-userRouter.get('/', getAllUsers)
-userRouter.get('/:id', getSingleUser)
-userRouter.delete('/:id', deleteUser)
-userRouter.put('/:id', upload.single('profilePic'),updateUser)
+userRouter.get('/', verifyToken, verifyAdmin, getAllUsers)
+userRouter.get('/:id', verifyToken, getSingleUser)
+userRouter.delete('/:id', verifyToken, verifyAdmin, deleteUser);
+userRouter.put('/deactivate/:id', verifyToken, deactivateUser)
+userRouter.put('/suspend/:id', verifyToken,verifyAdmin, suspendUser)
+userRouter.put('/:id', verifyToken, upload.single('profilePic'), updateUser)
 
 
 

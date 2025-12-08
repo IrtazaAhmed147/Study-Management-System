@@ -11,5 +11,23 @@
       "src": "/(.*)",
       "dest": "app.js"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/notifycheck",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/notifycheck",
+      "schedule": "0 15 * * *"
+    },
+    {
+      "path": "/api/notifyassignments",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/notifyassignments",
+      "schedule": "0 15 * * *"
+    }
   ]
 }

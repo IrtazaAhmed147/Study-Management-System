@@ -13,7 +13,7 @@ const courseSchema = new mongoose.Schema({
     },
     courseCode: {
         type: String,
-         trim: true,
+        trim: true,
     },
 
     owner: {
@@ -21,7 +21,7 @@ const courseSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
-    Members: [
+    members: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
@@ -43,6 +43,7 @@ const courseSchema = new mongoose.Schema({
             ref: "Resource",
         }
     ],
+    disable: { type: Boolean, default: false },
 },
     { timestamps: true }
 )

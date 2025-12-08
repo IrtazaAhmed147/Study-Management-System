@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import { errorHandler } from "../utils/responseHandler.js";
-import userModel from "../models/userModel.js";
 
 export const verifyToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
@@ -12,10 +11,16 @@ export const verifyToken = (req, res, next) => {
     const token = authHeader.split(" ")[1]; // Extract token after "Bearer"
 
     jwt.verify(token, process.env.JWT, async (err, user) => {
-        if (err) return errorHandler(res, 403, "Token is not valid")
-        // const findUser = await userModel.findById(user.id);
+        if (err) return errorHandler(res, 403, "Token is Expired")
         req.user = user
 
         next()
     })
 }
+
+export const verifyAdmin = (req, res, next) => {
+    if (!req.user || req.user.isAdmin !== true) {
+        return errorHandler(res, 403, "Access denied: Admin only");
+    }
+    next();
+};
