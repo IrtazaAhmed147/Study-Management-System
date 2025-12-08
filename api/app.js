@@ -31,43 +31,8 @@ app.use(cors({
     credentials: true
 }));
 
-// Create HTTP Server (IMPORTANT for socket.io)
-const server = http.createServer(app);
 
-// ─────────────────────────────────────────
-// SOCKET.IO SETUP
-// ─────────────────────────────────────────
-export const io = new Server(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-});
-
-// store users online
-export const onlineUsers = new Map();
-
-io.on("connection", (socket) => {
-    console.log("New client connected:", socket.id);
-
-    socket.on("register", (userId) => {
-        onlineUsers.set(userId, socket.id);
-        console.log("User registered:", userId, socket.id);
-    });
-
-    socket.on("disconnect", () => {
-        onlineUsers.forEach((value, key) => {
-            if (value === socket.id) {
-                onlineUsers.delete(key);
-            }
-        });
-        console.log("Client disconnected:", socket.id);
-    });
-});
-
-// ─────────────────────────────────────────
 // ROUTES
-// ─────────────────────────────────────────
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/course', courseRouter);
@@ -80,7 +45,7 @@ app.use('/api/notification', notificationRouter);
 
 if (process.env.NODE_ENV !== 'production') {
     const port = process.env.PORT || 6500;
-    server.listen(port, () => {
+    app.listen(port, () => {
         console.log(`Server is running on port ${port}`);
     });
 }

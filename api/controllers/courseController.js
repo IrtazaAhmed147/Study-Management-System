@@ -3,6 +3,7 @@ import courseModel from "../models/courseModel.js";
 import course from "../models/courseModel.js"
 import quizModel from "../models/quizModel.js";
 import resourceModel from "../models/resourceModel.js";
+import userModel from "../models/userModel.js";
 import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { errorHandler, successHandler } from "../utils/responseHandler.js";
 
@@ -19,6 +20,11 @@ export const createCourse = async (req, res) => {
             title, description, courseCode, owner: req.user.id,
         })
         let savedCourse = await courseData.save();
+
+        await userModel.findByIdAndUpdate(req.user.id, {
+            $push: { courses: savedCourse._id }
+        });
+
         successHandler(res, 200, "course created successfully", savedCourse)
 
 
@@ -100,7 +106,7 @@ export const deletecourse = async (req, res) => {
             await resourceModel.findByIdAndDelete(resource._id)
         }
         for (const assignment of courseData?.assignments) {
-            
+
             await assignmentsModel.findByIdAndDelete(assignment._id)
         }
         for (const quiz of courseData?.quizzes) {

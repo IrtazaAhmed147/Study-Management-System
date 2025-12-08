@@ -43,7 +43,7 @@ const courseSchema = new mongoose.Schema({
             ref: "Resource",
         }
     ],
-    suspend: { type: Boolean, default: false },
+    disable: { type: Boolean, default: false },
 },
     { timestamps: true }
 )

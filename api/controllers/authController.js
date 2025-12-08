@@ -81,6 +81,20 @@ export const login = async (req, res) => {
         }
 
         // 4. Check if user is verified
+        if(user.isSuspend){
+            return successHandler(
+                res,
+                200,
+                "Your account is suspended"
+            );
+        }
+        if(user.isDeactivate){
+            return successHandler(
+                res,
+                200,
+                "Your account is deactivated"
+            );
+        }
         if (!user.isVerified) {
 
             // Generate OTP

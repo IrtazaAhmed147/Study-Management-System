@@ -4,7 +4,7 @@ import resourceModel from "../models/resourceModel.js";
 import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { errorHandler, successHandler } from "../utils/responseHandler.js";
 import courseModel from "../models/courseModel.js";
-import { sendNotification } from "../utils/sendNotification.js";
+// import { sendNotification } from "../utils/sendNotification.js";
 import SubscriptionModel from "../models/SubscriptionModel.js";
 import { sendPushNotification } from "../utils/webPush.js";
 
