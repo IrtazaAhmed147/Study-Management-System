@@ -13,7 +13,7 @@ assignmentsRouter.post("/create/course/:id", verifyToken,upload.array('attachmen
 assignmentsRouter.get("/all", verifyToken,getAllAssignments);
 assignmentsRouter.get("/:id", verifyToken, getSingleAssignment);
 assignmentsRouter.get("/", verifyToken, getUserAssignments);
-assignmentsRouter.put("/:id", verifyToken, updateAssignment);
+assignmentsRouter.put("/:id", verifyToken,upload.array('attachments'),updateAssignment);
 assignmentsRouter.delete("/:id/course/:courseId", verifyToken, deleteAssignment);
 
 

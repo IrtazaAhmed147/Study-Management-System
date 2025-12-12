@@ -26,9 +26,9 @@ export default function AddAssignmentPage() {
     const [coverFiles, setCoverFiles] = useState([]);
     const [coverPreviews, setCoverPreviews] = useState([]);
     const [render, setRender] = useState(false);
-   
 
-  const [dueDate, setDueDate] = useState(null); // local state for picker
+
+    const [dueDate, setDueDate] = useState(null); // local state for picker
     const form = useRef({ task: "" })
     const formRef = useRef();
     const [courseList, setCourseList] = useState([]);
@@ -48,11 +48,11 @@ export default function AddAssignmentPage() {
         formData.append("description", form.current.task);
         // formData.append("courseId", form.current.course);
         formData.append("dueDate", form.current.dueDate);
-        formData.append("status","Pending");
+        formData.append("status", "Pending");
 
         // Append multiple images
         coverFiles.forEach((file, index) => {
-            formData.append("images", file);
+            formData.append("attachments", file);
         });
 
         dispatch(createAssignmentAction(form.current.course, formData)).then((msg) => notify("success", msg))
@@ -288,7 +288,7 @@ export default function AddAssignmentPage() {
                     {/* Hidden Input */}
                     <input
                         type="file"
-                        accept="image/*"
+                        accept="image/*,application/pdf,text/plain"
                         multiple
                         id="coverUpload"
                         style={{ display: "none" }}

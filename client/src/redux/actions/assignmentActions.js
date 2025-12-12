@@ -106,6 +106,8 @@ export const deleteAssignmentAction = (id, courseId) => async (dispatch) => {
 
 // UPDATE ASSIGNMENT
 export const updateAssignmentAction = (id, assignmentData) => async (dispatch) => {
+    console.log(assignmentData);
+    
     try {
         dispatch(createAssignmentStart());
 

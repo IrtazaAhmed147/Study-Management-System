@@ -1,6 +1,6 @@
 import assignmentsModel from "../models/assignmentsModel.js";
 import courseModel from "../models/courseModel.js";
-import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
+import { uploadOnCloudinary, deleteFromCloudinary, uploadFileOnCloudinary } from "../utils/cloudinary.js";
 import { errorHandler, successHandler } from "../utils/responseHandler.js";
 
 
@@ -18,12 +18,21 @@ export const createAssignment = async (req, res) => {
         }
 
         const attachments = [];
+
         for (const file of files) {
-            const url = await uploadOnCloudinary(file, "assignment-images");
-            attachments.push(url.secure_url);
+            if (file.mimetype?.startsWith("image/")) {
+                const url = await uploadOnCloudinary(file, "assignmentsFile");
+                attachments.push({url: url.secure_url, mimetype:file.mimetype});
+            } else if (file.mimetype === "application/pdf" || file.mimetype === "text/plain") {
+                const url = await uploadFileOnCloudinary(file, "assignmentsFile");
+                attachments.push({url: url.secure_url, mimetype:file.mimetype});
+            } else {
+                console.log("Unsupported file type:", file.mimetype);
+            }
+
         }
-        console.log(title, description, dueDate);
-        
+        console.log(title, description, dueDate, attachments);
+
         const assignment = new assignmentsModel({
             title: title,
             description,
@@ -42,6 +51,7 @@ export const createAssignment = async (req, res) => {
         });
 
         successHandler(res, 200, "Assignment created successfully", saved);
+        // successHandler(res, 200, "Assignment created successfully");
 
     } catch (error) {
         errorHandler(res, 400, error.message);
@@ -135,17 +145,18 @@ export const deleteAssignment = async (req, res) => {
 export const updateAssignment = async (req, res) => {
     try {
         if (req.file) {
-            const url = await uploadOnCloudinary(req.file, "assignment-images");
+            const url = await uploadOnCloudinary(req.file, "assignmentsFile");
             req.body.newAttachment = url.secure_url;
         }
-
+        console.log(req.body);
+        
         const updated = await assignmentsModel.findByIdAndUpdate(
             req.params.id,
             { $set: req.body },
             { new: true }
         );
 
-        if (req.body.newAttachment) {
+        if (req?.body?.newAttachment) {
             updated.attachments.push(req.body.newAttachment);
             await updated.save();
         }

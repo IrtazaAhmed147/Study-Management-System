@@ -17,13 +17,17 @@ const options = ["Change Status", "Delete", "Update"];
 
 const ITEM_HEIGHT = 48;
 
-export default function TaskTable({ assignments ,viewModal}) {
- 
+export default function TaskTable({ assignments, viewModal, askDelete, handleUpdate,setSelectedItem,selectedItem }) {
+
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  const handleClick = (event) => setAnchorEl(event.currentTarget);
+  const handleClick = (event, rowItem) => {
+    setSelectedItem(rowItem);
+    setAnchorEl(event.currentTarget);
+  };
+
   const handleClose = () => setAnchorEl(null);
 
   return (
@@ -115,7 +119,7 @@ export default function TaskTable({ assignments ,viewModal}) {
           </Box>
 
           <Box sx={{ width: "15%" }}>  <Button
-          onClick={()=> viewModal(item._id)}
+            onClick={() => viewModal(item)}
             sx={{
 
               px: 2,
@@ -138,7 +142,7 @@ export default function TaskTable({ assignments ,viewModal}) {
               aria-label="more"
               aria-controls={open ? "menu" : undefined}
               aria-haspopup="true"
-              onClick={handleClick}
+              onClick={(e) => handleClick(e, item)}
             >
               <MoreVertIcon fontSize="small" />
             </IconButton>
@@ -157,7 +161,19 @@ export default function TaskTable({ assignments ,viewModal}) {
               }}
             >
               {options.map((option) => (
-                <MenuItem key={option} onClick={handleClose}>
+                <MenuItem key={option} onClick={() => {
+                  if (option === 'Delete') {
+                    askDelete({ _id: selectedItem._id, courseId: selectedItem?.courseId?._id })
+                  } else if (option === 'Change Status') {
+                    handleUpdate( 
+                      selectedItem?._id,
+                      { status: selectedItem?.status === "Pending" ? "Completed" : "Pending" }
+                    )
+                  }
+                  handleClose()
+
+                }
+                }>
                   {option}
                 </MenuItem>
               ))}

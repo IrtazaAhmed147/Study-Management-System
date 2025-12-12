@@ -28,13 +28,30 @@ export const uploadOnCloudinary = async (file, folder = 'default') => {
 
   })
 };
+export const uploadFileOnCloudinary = async (file, folder = 'default') => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: 'auto',
+        folder,
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+
+    streamifier.createReadStream(file.buffer).pipe(uploadStream);
+
+  })
+};
 
 
 export const deleteFromCloudinary = async (publicId) => {
-    return new Promise((resolve, reject) => {
-        cloudinary.uploader.destroy(publicId, { resource_type: "image" }, (error, result) => {
-            if (error) return reject(error);
-            resolve(result);
-        });
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.destroy(publicId, { resource_type: "image" }, (error, result) => {
+      if (error) return reject(error);
+      resolve(result);
     });
+  });
 };
