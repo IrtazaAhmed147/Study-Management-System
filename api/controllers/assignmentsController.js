@@ -22,9 +22,10 @@ export const createAssignment = async (req, res) => {
             const url = await uploadOnCloudinary(file, "assignment-images");
             attachments.push(url.secure_url);
         }
-
+        console.log(title, description, dueDate);
+        
         const assignment = new assignmentsModel({
-            title,
+            title: title,
             description,
             createdBy: req.user.id,
             dueDate,
@@ -72,7 +73,10 @@ export const getAllAssignments = async (req, res) => {
 
 export const getSingleAssignment = async (req, res) => {
     try {
-        const assignment = await assignmentsModel.findById(req.params.id);
+        const assignment = await assignmentsModel.findById(req.params.id).populate({
+            path: "courseId",
+            select: "title"
+        });
         if (!assignment) return errorHandler(res, 404, "Assignment not found");
 
         successHandler(res, 200, "Assignment found", assignment);
@@ -86,13 +90,16 @@ export const getSingleAssignment = async (req, res) => {
 export const getUserAssignments = async (req, res) => {
     try {
 
-         const { title, dueDate,  status } = req.query;
+        const { title, dueDate, status } = req.query;
 
-        const filter = {createdBy: req.user.id};
+        const filter = { createdBy: req.user.id };
         if (title) { filter.title = { $regex: title, $options: "i" } };
         if (dueDate) { filter.dueDate = dueDate };
         if (status) { filter.status = status };
-        const assignments = await assignmentsModel.find(filter);
+        const assignments = await assignmentsModel.find(filter).populate({
+            path: "courseId",
+            select: "title"
+        });
 
         successHandler(res, 200, "Assignments fetched", assignments);
     } catch (err) {

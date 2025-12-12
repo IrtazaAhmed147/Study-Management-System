@@ -44,9 +44,9 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPass />} />
         <Route path="/reset-password" element={<ResetPass />} />
         <Route path="/otp" element={<Otp />} />
-          <Route index element={<LandingPage />} /> 
-          <Route path='/privacypolicy' element={<PrivacyPolicyPage />} /> 
-          <Route path='/termsandcondition' element={<TermsConditionPage />} /> 
+        <Route index element={<LandingPage />} />
+        <Route path='/privacypolicy' element={<PrivacyPolicyPage />} />
+        <Route path='/termsandcondition' element={<TermsConditionPage />} />
 
         <Route element={<Layout />}>
           <Route path='/dashboard' element={<Dashboard />} />

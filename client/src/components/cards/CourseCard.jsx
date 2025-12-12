@@ -2,7 +2,8 @@ import { Box, Typography, IconButton, Menu, MenuItem } from "@mui/material";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { formatDate } from "../../utils/HelperFunctions";
 
 const menuOptions = [
   "Edit Course",
@@ -12,17 +13,17 @@ const menuOptions = [
 
 const ITEM_HEIGHT = 48;
 
-function CourseCard() {
- const [anchorEl, setAnchorEl] = React.useState(null);
-const open = Boolean(anchorEl);
+function CourseCard({ title, description, members, resources, updatedAt, _id,askDelete,setShareModalOpen}) {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const navigate = useNavigate();
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-const handleClick = (event) => {
-  setAnchorEl(event.currentTarget);
-};
-
-const handleClose = () => {
-  setAnchorEl(null);
-};
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
 
   return (
@@ -40,37 +41,36 @@ const handleClose = () => {
         },
       }}
     >
-      <Link to={`/course/123`}>
+      <Link to={`/course/${_id}`}>
 
-      {/* Title */}
-      <Typography
-        fontSize="18px"
-        fontWeight="bold"
-        color="var(--text-color)"
-        sx={{ mb: 1, width: "85%" }}
-      >
-        Beginner's Guide to Figma
-      </Typography>
-
-      {/* Description */}
-      <Typography fontSize="13px" color="#555" sx={{ mb: 2 }}>
-        Learn how to design a beautiful and engaging mobile app with Figma.
-      </Typography>
-
-      {/* META INFO (3 Lines) */}
-      <Box sx={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-        <Typography fontSize="13px" color="var(--text-color)">
-          Materials: <b>12</b>
+        {/* Title */}
+        <Typography
+          fontSize="18px"
+          fontWeight="bold"
+          color="var(--text-color)"
+          sx={{ mb: 1, width: "85%" }}
+        >
+          {title}
         </Typography>
 
-        <Typography fontSize="13px" color="var(--text-color)">
-          Shared With: <b>3 Members</b>
+        {/* Description */}
+        <Typography fontSize="13px" color="#555" sx={{ mb: 2 }}>
+          {description?.slice(0, 80)}
         </Typography>
 
-        <Typography fontSize="13px" color="var(--text-color)">
-          Last Updated: <b>03-12-2025</b>
-        </Typography>
-      </Box>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+          <Typography fontSize="13px" color="var(--text-color)">
+            Materials: <b>{resources?.length || 0}</b>
+          </Typography>
+
+          <Typography fontSize="13px" color="var(--text-color)">
+            Shared With: <b>{members?.length || 0} Members</b>
+          </Typography>
+
+          <Typography fontSize="13px" color="var(--text-color)">
+            Last Updated: <b>{formatDate(updatedAt)}</b>
+          </Typography>
+        </Box>
 
       </Link>
       {/* Bottom Bar */}
@@ -83,7 +83,7 @@ const handleClose = () => {
           paddingTop: "10px",
           borderTop: "1px solid #e5e5e5",
         }}
-        >
+      >
         {/* Left Icon */}
         <BookmarkBorderOutlinedIcon sx={{ color: "#666", cursor: "pointer" }} />
 
@@ -95,7 +95,7 @@ const handleClose = () => {
           aria-haspopup="true"
           aria-expanded={open ? "true" : undefined}
           onClick={handleClick}
-          >
+        >
           <MoreVertIcon />
         </IconButton>
 
@@ -112,9 +112,21 @@ const handleClose = () => {
               },
             },
           }}
-          >
+        >
           {menuOptions.map((option) => (
-            <MenuItem key={option} onClick={handleClose}>
+            <MenuItem key={option} onClick={() => {
+              if (option === 'Delete') {
+                askDelete(_id)
+              } else if (option === 'Edit Course') {
+                navigate(`/add/course?id=${_id}&type=edit`)
+              } else if (option === 'Share'){
+                setShareModalOpen(true)
+              }
+              handleClose()
+            }
+
+
+            } >
               {option}
             </MenuItem>
           ))}

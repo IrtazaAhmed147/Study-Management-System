@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     Box,
     TextField,
@@ -11,12 +11,55 @@ import {
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+// import TextField from '@mui/material/TextField';
 
+import { useDispatch, useSelector } from 'react-redux';
+import { getSingleCourseAction, getUserCoursesAction } from "../../redux/actions/courseActions";
+import { useSearchParams } from "react-router-dom";
+import { notify } from "../../utils/HelperFunctions";
+import { createAssignmentAction } from "../../redux/actions/assignmentActions";
 const courses = ["Select Course", "OOP", "Database", "Linear", "Calculus"];
 
 export default function AddAssignmentPage() {
     const [coverFiles, setCoverFiles] = useState([]);
     const [coverPreviews, setCoverPreviews] = useState([]);
+    const [render, setRender] = useState(false);
+   
+
+  const [dueDate, setDueDate] = useState(null); // local state for picker
+    const form = useRef({ task: "" })
+    const formRef = useRef();
+    const [courseList, setCourseList] = useState([]);
+    const dispatch = useDispatch()
+    useEffect(() => {
+        dispatch(getUserCoursesAction({ courseType: 'mycourses' })).then((data) => setCourseList(data)).catch((err) => console.log(err)
+        )
+    }, [])
+
+
+    const handleCreateAssigment = async () => {
+        console.log(form.current);
+        console.log(coverFiles);
+
+        const formData = new FormData();
+        formData.append("title", form.current.title);
+        formData.append("description", form.current.task);
+        // formData.append("courseId", form.current.course);
+        formData.append("dueDate", form.current.dueDate);
+        formData.append("status","Pending");
+
+        // Append multiple images
+        coverFiles.forEach((file, index) => {
+            formData.append("images", file);
+        });
+
+        dispatch(createAssignmentAction(form.current.course, formData)).then((msg) => notify("success", msg))
+
+
+    }
+
 
     const handleCoverUpload = (e) => {
         const files = Array.from(e.target.files);
@@ -40,7 +83,7 @@ export default function AddAssignmentPage() {
     };
 
     return (
-        <Box sx={{ p: 2, width: "100%", mx: "auto",minHeight:"100vh" }}>
+        <Box sx={{ p: 2, width: "100%", mx: "auto", minHeight: "100vh" }}>
             {/* Heading */}
             <Typography
                 sx={{
@@ -56,19 +99,22 @@ export default function AddAssignmentPage() {
             <Box
                 sx={{
                     display: "flex",
-                    width:"100%",
-                    flexWrap:"wrap",
+                    width: "100%",
+                    flexWrap: "wrap",
                     gap: 4,
                 }}
             >
                 {/* LEFT SIDE */}
-                <Box sx={{width:{xs:"100%",sm:"48%",md:"48%"}}}>
+                <Box sx={{ width: { xs: "100%", sm: "48%", md: "48%" } }}>
                     {/* Assignment Name */}
                     <Typography sx={{ mb: 1, fontSize: "12px", color: "#6b7280" }}>
                         Assignment Title
                     </Typography>
                     <input
                         type="text"
+                        name="title"
+                        defaultValue={form.current.title}
+                        onChange={(e) => form.current = { ...form.current, [e.target.name]: e.target.value }}
                         placeholder="Enter title"
                         style={{
                             outline: "none",
@@ -89,6 +135,7 @@ export default function AddAssignmentPage() {
                     <Select
                         fullWidth
                         size="small"
+                        name="course"
                         sx={{
                             mb: 2,
                             bgcolor: "#fff",
@@ -96,11 +143,19 @@ export default function AddAssignmentPage() {
                             borderRadius: "6px",
                             height: "40px",
                         }}
+                        onChange={(e) => {
+                            // setCourseType(e.target.value)
+                            form.current = { ...form.current, [e.target.name]: e.target.value }
+
+                        }}
                         defaultValue={"Select Course"}
                     >
-                        {courses.map((cat) => (
-                            <MenuItem key={cat} value={cat} sx={{ fontSize: "13px" }}>
-                                {cat}
+                        <MenuItem value={'Select Course'} sx={{ fontSize: "13px" }}>
+                            Select Course
+                        </MenuItem>
+                        {courseList.map((cat) => (
+                            <MenuItem key={cat._id} value={cat._id} sx={{ fontSize: "13px" }}>
+                                {cat.title}
                             </MenuItem>
                         ))}
                     </Select>
@@ -110,6 +165,9 @@ export default function AddAssignmentPage() {
                         Task
                     </Typography>
                     <textarea
+                        defaultValue={form.current.task}
+                        name="task"
+                        onChange={(e) => form.current = { ...form.current, [e.target.name]: e.target.value }}
                         rows={6}
                         placeholder="Write assignment task..."
                         style={{
@@ -122,10 +180,26 @@ export default function AddAssignmentPage() {
                             fontSize: "13px",
                         }}
                     ></textarea>
+
+                    <Typography sx={{ mt: 1, mb: 1, fontSize: "12px", color: "#6b7280" }}>
+                        Due Date
+                    </Typography>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            // label="Due Date"
+                            value={dueDate}
+                            onChange={(newValue) => {
+                                setDueDate(newValue); // update local state
+                                form.current.dueDate = newValue ? newValue.format("YYYY-MM-DD") : "";
+                                // store as string in your form data
+                            }}
+                            renderInput={(params) => <TextField {...params} fullWidth size="small" />}
+                        />
+                    </LocalizationProvider>
                 </Box>
 
                 {/* RIGHT SIDE — MULTIPLE IMAGES */}
-                <Box sx={{width:{xs:"100%",sm:"48%",md:"48%"}}}>
+                <Box sx={{ width: { xs: "100%", sm: "48%", md: "48%" } }}>
                     <Typography sx={{ mb: 1 }}>Upload Images</Typography>
 
                     <Paper
@@ -226,6 +300,7 @@ export default function AddAssignmentPage() {
             {/* BUTTONS */}
             <Box sx={{ mt: 4 }}>
                 <Button
+                    onClick={() => handleCreateAssigment()}
                     sx={{
                         padding: " 5px 10px",
                         width: "160px",

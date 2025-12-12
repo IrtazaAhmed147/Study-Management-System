@@ -1,15 +1,43 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import TaskTable from '../../components/tables/TaskTable'
 import { Box, MenuItem, Select, Typography, TextField } from '@mui/material'
+import { useDispatch, useSelector } from 'react-redux'
+import { getSingleAssignmentAction, getUserAssignmentsAction } from '../../redux/actions/assignmentActions'
+import AssignmentDetailModal from '../../components/modal/AssignmentDetailModal'
 
 function TaskPage() {
+
+  const dispatch = useDispatch()
+  const { isLoading, assignments } = useSelector((state) => state.assignments)
+  const [isModal, setIsModal] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
+
+
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
+  useEffect(() => {
+    dispatch(getUserAssignmentsAction()).then((data) => console.log(data)
+    );
+
+  }, [])
+
+  useEffect(() => {
+  if (selectedCourseId) {
+    dispatch(getSingleAssignmentAction(selectedCourseId))
+      .then((res) => {
+        setSelectedAssignment(res); // store data
+      });
+  }
+}, [selectedCourseId]);
+
+
+
   return (
     <Box
       sx={{
         minHeight: '100vh',
         width: '100%',
         backgroundColor: 'var(--bg-color)',
-         padding: { xs: "10px", sm: "20px", md: "20px" }, pt:"5px !important",
+        padding: { xs: "10px", sm: "20px", md: "20px" }, pt: "5px !important",
       }}
     >
       {/* Page Title */}
@@ -102,7 +130,14 @@ function TaskPage() {
       </Box>
 
       {/* Task Table */}
-      <TaskTable />
+
+      <TaskTable assignments={assignments} viewModal={(id) => {
+        setSelectedCourseId(id);
+        setIsModal(true);
+      }} />
+
+      {isModal && <AssignmentDetailModal open={isModal}
+        handleClose={() => setIsModal(false)} assignment={selectedAssignment}/>}
     </Box>
   )
 }
