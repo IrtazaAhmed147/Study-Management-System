@@ -35,7 +35,7 @@ export const createCourseAction = (courseData) => async (dispatch) => {
 
 
 
-export const getUserCoursesAction = (query) => async (dispatch) => {
+export const getUserCoursesAction = (query = '') => async (dispatch) => {
     console.log(query);
 
     try {

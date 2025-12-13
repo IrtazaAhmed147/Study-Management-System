@@ -164,6 +164,7 @@ function TaskPage() {
       <TaskTable assignments={assignments}
         // setUpdateData={setUpdateData}
         // setSelectedCourseId={setSelectedCourseId}
+        isLoading= {isLoading}
         handleUpdate={handleUpdate}
         setSelectedItem={setSelectedItem}
         selectedItem={selectedItem}

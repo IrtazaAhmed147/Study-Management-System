@@ -22,10 +22,10 @@ export const createAssignment = async (req, res) => {
         for (const file of files) {
             if (file.mimetype?.startsWith("image/")) {
                 const url = await uploadOnCloudinary(file, "assignmentsFile");
-                attachments.push({url: url.secure_url, mimetype:file.mimetype});
+                attachments.push({ url: url.secure_url, mimetype: file.mimetype });
             } else if (file.mimetype === "application/pdf" || file.mimetype === "text/plain") {
                 const url = await uploadFileOnCloudinary(file, "assignmentsFile");
-                attachments.push({url: url.secure_url, mimetype:file.mimetype});
+                attachments.push({ url: url.secure_url, mimetype: file.mimetype });
             } else {
                 console.log("Unsupported file type:", file.mimetype);
             }
@@ -144,12 +144,25 @@ export const deleteAssignment = async (req, res) => {
 
 export const updateAssignment = async (req, res) => {
     try {
-        if (req.file) {
-            const url = await uploadOnCloudinary(req.file, "assignmentsFile");
-            req.body.newAttachment = url.secure_url;
+        const files = req.files || [];
+        req.body.attachments = [];
+        if (req.files) {
+
+            for (const file of files) {
+                if (file.mimetype?.startsWith("image/")) {
+                    const url = await uploadOnCloudinary(file, "assignmentsFile");
+                    req.body.attachments.push({ url: url.secure_url, mimetype: file.mimetype });
+                } else if (file.mimetype === "application/pdf" || file.mimetype === "text/plain") {
+                    const url = await uploadFileOnCloudinary(file, "assignmentsFile");
+                    req.body.attachments.push({ url: url.secure_url, mimetype: file.mimetype });
+                } else {
+                    console.log("Unsupported file type:", file.mimetype);
+                }
+
+            }
         }
         console.log(req.body);
-        
+
         const updated = await assignmentsModel.findByIdAndUpdate(
             req.params.id,
             { $set: req.body },

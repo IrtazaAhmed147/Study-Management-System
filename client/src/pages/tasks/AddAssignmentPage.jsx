@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
     Box,
-    TextField,
     Typography,
     MenuItem,
     Button,
@@ -13,14 +12,12 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-// import TextField from '@mui/material/TextField';
-
 import { useDispatch, useSelector } from 'react-redux';
 import { getSingleCourseAction, getUserCoursesAction } from "../../redux/actions/courseActions";
 import { useSearchParams } from "react-router-dom";
 import { notify } from "../../utils/HelperFunctions";
-import { createAssignmentAction } from "../../redux/actions/assignmentActions";
-const courses = ["Select Course", "OOP", "Database", "Linear", "Calculus"];
+import { createAssignmentAction, getSingleAssignmentAction, updateAssignmentAction } from "../../redux/actions/assignmentActions";
+import dayjs from "dayjs";
 
 export default function AddAssignmentPage() {
     const [coverFiles, setCoverFiles] = useState([]);
@@ -33,30 +30,60 @@ export default function AddAssignmentPage() {
     const formRef = useRef();
     const [courseList, setCourseList] = useState([]);
     const dispatch = useDispatch()
+    const [params] = useSearchParams()
     useEffect(() => {
-        dispatch(getUserCoursesAction({ courseType: 'mycourses' })).then((data) => setCourseList(data)).catch((err) => console.log(err)
-        )
+
+        if (params.get("type") !== 'edit') {
+
+            dispatch(getUserCoursesAction({ courseType: 'mycourses' })).then((data) => setCourseList(data)).catch((err) => console.log(err))
+        }
+    }, [])
+    useEffect(() => {
+
+        if (params.get("type") === 'edit' && params.get("id")) {
+            dispatch(getSingleAssignmentAction(params.get("id"))).then((data) => {
+                form.current = {
+                    title: data.title,
+                    task: data.description,
+                    dueDate: data.dueDate,
+                    course: data.courseId.title
+                }
+                setDueDate(data.dueDate ? dayjs(data.dueDate) : null);
+                setCoverPreviews(
+                    data.attachments.map(att => ({
+                        url: att.url,
+                        isOld: true
+                    }))
+                );
+
+                setRender((p) => !p);
+                // setDueDate(data.dueDate)
+                console.log(data)
+            }).catch((err) => console.log(err))
+        }
     }, [])
 
 
     const handleCreateAssigment = async () => {
-        console.log(form.current);
-        console.log(coverFiles);
 
         const formData = new FormData();
         formData.append("title", form.current.title);
         formData.append("description", form.current.task);
-        // formData.append("courseId", form.current.course);
         formData.append("dueDate", form.current.dueDate);
         formData.append("status", "Pending");
 
-        // Append multiple images
         coverFiles.forEach((file, index) => {
             formData.append("attachments", file);
         });
 
-        dispatch(createAssignmentAction(form.current.course, formData)).then((msg) => notify("success", msg))
 
+        if (params.get('type') === 'edit' && params.get('id')) {
+
+            dispatch(updateAssignmentAction(params.get('id'), formData)).then((msg) => notify("success", msg))
+        } else {
+            dispatch(createAssignmentAction(form.current.course, formData)).then((msg) => notify("success", msg))
+
+        }
 
     }
 
@@ -64,22 +91,23 @@ export default function AddAssignmentPage() {
     const handleCoverUpload = (e) => {
         const files = Array.from(e.target.files);
 
-        const newFiles = [...coverFiles, ...files];
-        const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+        const previews = files.map(file => ({
+            url: URL.createObjectURL(file),
+            isOld: false
+        }));
 
-        setCoverFiles(newFiles);
-        setCoverPreviews(newPreviews);
+        setCoverFiles(prev => [...prev, ...files]);
+        setCoverPreviews(prev => [...prev, ...previews]);
+
     };
 
     const removeImage = (index) => {
-        const updatedFiles = [...coverFiles];
-        const updatedPreviews = [...coverPreviews];
 
-        updatedFiles.splice(index, 1);
-        updatedPreviews.splice(index, 1);
-
-        setCoverFiles(updatedFiles);
-        setCoverPreviews(updatedPreviews);
+        const removed = coverPreviews[index];
+        setCoverPreviews(prev => prev.filter((_, i) => i !== index));
+        if (!removed.isOld) {
+            setCoverFiles(prev => prev.slice(0, prev.length - 1));
+        }
     };
 
     return (
@@ -95,7 +123,14 @@ export default function AddAssignmentPage() {
             >
                 Create Assignment
             </Typography>
-
+            {(params.get('type') === 'edit') && <Typography sx={{ mt: 2, mb: 1, fontSize: "15px", color: "#6b7280" }}>
+                Course:   <Box
+                    component="span"
+                    sx={{ color: "var(--text-color)", fontWeight: 500, ml: 0.5 }}
+                >
+                    {form?.current?.course}
+                </Box>
+            </Typography>}
             <Box
                 sx={{
                     display: "flex",
@@ -104,8 +139,9 @@ export default function AddAssignmentPage() {
                     gap: 4,
                 }}
             >
-                {/* LEFT SIDE */}
+
                 <Box sx={{ width: { xs: "100%", sm: "48%", md: "48%" } }}>
+
                     {/* Assignment Name */}
                     <Typography sx={{ mb: 1, fontSize: "12px", color: "#6b7280" }}>
                         Assignment Title
@@ -128,37 +164,36 @@ export default function AddAssignmentPage() {
                         }}
                     />
 
-                    {/* Course Dropdown */}
-                    <Typography sx={{ mt: 2, mb: 1, fontSize: "12px", color: "#6b7280" }}>
+                    {(params.get('type') !== 'edit') && <><Typography sx={{ mt: 2, mb: 1, fontSize: "12px", color: "#6b7280" }}>
                         Select Course
                     </Typography>
-                    <Select
-                        fullWidth
-                        size="small"
-                        name="course"
-                        sx={{
-                            mb: 2,
-                            bgcolor: "#fff",
-                            fontSize: "13px",
-                            borderRadius: "6px",
-                            height: "40px",
-                        }}
-                        onChange={(e) => {
-                            // setCourseType(e.target.value)
-                            form.current = { ...form.current, [e.target.name]: e.target.value }
+                        <Select
+                            fullWidth
+                            size="small"
+                            name="course"
+                            sx={{
+                                mb: 2,
+                                bgcolor: "#fff",
+                                fontSize: "13px",
+                                borderRadius: "6px",
+                                height: "40px",
+                            }}
+                            onChange={(e) => {
+                                // setCourseType(e.target.value)
+                                form.current = { ...form.current, [e.target.name]: e.target.value }
 
-                        }}
-                        defaultValue={"Select Course"}
-                    >
-                        <MenuItem value={'Select Course'} sx={{ fontSize: "13px" }}>
-                            Select Course
-                        </MenuItem>
-                        {courseList.map((cat) => (
-                            <MenuItem key={cat._id} value={cat._id} sx={{ fontSize: "13px" }}>
-                                {cat.title}
+                            }}
+                            defaultValue={"Select Course"}
+                        >
+                            <MenuItem value={'Select Course'} sx={{ fontSize: "13px" }}>
+                                Select Course
                             </MenuItem>
-                        ))}
-                    </Select>
+                            {courseList.map((cat) => (
+                                <MenuItem key={cat._id} value={cat._id} sx={{ fontSize: "13px" }}>
+                                    {cat.title}
+                                </MenuItem>
+                            ))}
+                        </Select> </>}
 
                     {/* Task Input */}
                     <Typography sx={{ mt: 1, mb: 1, fontSize: "12px", color: "#6b7280" }}>
@@ -193,14 +228,19 @@ export default function AddAssignmentPage() {
                                 form.current.dueDate = newValue ? newValue.format("YYYY-MM-DD") : "";
                                 // store as string in your form data
                             }}
-                            renderInput={(params) => <TextField {...params} fullWidth size="small" />}
+                            slotProps={{
+                                textField: {
+                                    fullWidth: true,
+                                    size: "small",
+                                },
+                            }}
                         />
                     </LocalizationProvider>
                 </Box>
 
                 {/* RIGHT SIDE — MULTIPLE IMAGES */}
                 <Box sx={{ width: { xs: "100%", sm: "48%", md: "48%" } }}>
-                    <Typography sx={{ mb: 1 }}>Upload Images</Typography>
+                    <Typography sx={{ mb: 1 }}>Upload Files</Typography>
 
                     <Paper
                         variant="outlined"
@@ -270,7 +310,7 @@ export default function AddAssignmentPage() {
 
                                         {/* Image */}
                                         <img
-                                            src={img}
+                                            src={img.url}
                                             alt="preview"
                                             style={{
                                                 width: "100%",
@@ -315,7 +355,7 @@ export default function AddAssignmentPage() {
                         }
                     }}
                 >
-                    Create Assignment
+                  Save Assignment
                 </Button>
             </Box>
         </Box>

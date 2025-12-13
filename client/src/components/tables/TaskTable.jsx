@@ -8,21 +8,23 @@ import {
   Typography,
   Chip,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 // Menu Options
-const options = ["Change Status", "Delete", "Update"];
+const options = ["Change Status", "Delete", "Edit"];
 
 const ITEM_HEIGHT = 48;
 
-export default function TaskTable({ assignments, viewModal, askDelete, handleUpdate,setSelectedItem,selectedItem }) {
+export default function TaskTable({ assignments, viewModal, askDelete, handleUpdate, setSelectedItem, selectedItem, isLoading }) {
 
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-
+  const navigate = useNavigate()
   const handleClick = (event, rowItem) => {
     setSelectedItem(rowItem);
     setAnchorEl(event.currentTarget);
@@ -59,7 +61,8 @@ export default function TaskTable({ assignments, viewModal, askDelete, handleUpd
       </Box>
 
       {/* Rows */}
-      {assignments?.map((item, i) => (
+      {isLoading && <> <Box sx={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "250px" }}>  <CircularProgress color="inherit" size="30px" /> </Box></>}
+      {!isLoading && assignments?.map((item, i) => (
         <Box
           key={i}
           sx={{
@@ -165,16 +168,24 @@ export default function TaskTable({ assignments, viewModal, askDelete, handleUpd
                   if (option === 'Delete') {
                     askDelete({ _id: selectedItem._id, courseId: selectedItem?.courseId?._id })
                   } else if (option === 'Change Status') {
-                    handleUpdate( 
+                    handleUpdate(
                       selectedItem?._id,
                       { status: selectedItem?.status === "Pending" ? "Completed" : "Pending" }
                     )
+                  } else if(option === 'Edit') {
+                    navigate(`/create/assignment?type=edit&id=${selectedItem._id}`)
                   }
                   handleClose()
 
                 }
                 }>
-                  {option}
+                  {option === "Change Status"
+                    ? selectedItem?.status === "Completed"
+                      ? "Pending"
+                      : "Completed"
+                    : option}
+
+                  {/* {option} */}
                 </MenuItem>
               ))}
             </Menu>
