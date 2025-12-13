@@ -22,7 +22,7 @@ function Login() {
 
     useEffect(() => {
         if (user) {
-            navigate('/')
+            navigate('/dashboard')
         }
     }, [user])
 
@@ -32,7 +32,11 @@ function Login() {
         if (!form.current.username.trim() || !form.current.password.trim()) return;
 
         dispatch(loginUser(form.current))
-            .then((msg) => notify('success', msg))
+            .then(({msg, url}) => {
+                
+                notify('success', msg)
+                navigate(`/${url}`)
+            })
             .catch((err) => notify('error', err))
 
 
@@ -69,7 +73,9 @@ function Login() {
                             </Box>
 
                             <Box className="flex-row">
+                                <Link to={'/forgot-password'}>
                                 <span className="span">Forgot password?</span>
+                                </Link>
                             </Box>
                             {/* {error && <p>{error}</p>} */}
                             <button disabled={isLoading} className="btn">

@@ -12,7 +12,7 @@ export const createCourse = async (req, res) => {
     try {
 
         const { title, description, courseCode } = req.body;
-        if (!title.trim() || !description.trim()) {
+        if (!title.trim() ) {
             return errorHandler(res, 404, "missing fields")
         }
 
@@ -63,6 +63,8 @@ export const getSinglecourse = async (req, res) => {
 export const getUserCourses = async (req, res) => {
     try {
         const { courseName, courseType } = req.query;
+        console.log(req.query);
+        
         const filter = {};
         if (courseName) {
             filter.title = { $regex: courseName, $options: "i" }; // better search

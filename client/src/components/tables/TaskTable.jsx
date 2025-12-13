@@ -7,71 +7,45 @@ import {
   MenuItem,
   Typography,
   Chip,
+  Button,
+  CircularProgress,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 // Menu Options
-const options = ["Change Status", "Delete", "Update"];
+const options = ["Change Status", "Delete", "Edit"];
 
 const ITEM_HEIGHT = 48;
 
-export default function TaskTable() {
-  const tasks = [
-    {
-      task: "Draw ERD",
-      course: "Database",
-      type: "Assignment",
-      due: "3-12-25",
-      file: "image",
-      status: "Completed",
-    },
-    {
-      task: "Normalization",
-      course: "Database",
-      type: "Quiz",
-      due: "5-12-25",
-      file: "image",
-      status: "Pending",
-    },
-    {
-      task: "SQL Joins",
-      course: "Database",
-      type: "Assignment",
-      due: "7-12-25",
-      file: "image",
-      status: "Completed",
-    },
-    {
-      task: "10 questions solve karne hain jismein se 2 complete hain sdvdsfds sf sfewf",
-      course: "Linear Algebra",
-      type: "Assignment",
-      due: "7-12-25",
-      file: "image",
-      status: "Completed",
-    },
-  ];
+export default function TaskTable({ assignments, viewModal, askDelete, handleUpdate, setSelectedItem, selectedItem, isLoading }) {
+
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const navigate = useNavigate()
+  const handleClick = (event, rowItem) => {
+    setSelectedItem(rowItem);
+    setAnchorEl(event.currentTarget);
+  };
 
-  const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
   return (
-    <Box sx={{ width: "100%", mt: 1,overflowX:"auto" ,pb:1}}>
-      
+    <Box sx={{ width: "100%", mt: 1, overflowX: "auto", pb: 1 }}>
+
       {/* Header */}
       <Box
         sx={{
           display: "flex",
           background: "#f0f4fa",
-         py: {xs:0.5,sm:1.5,md:1.5},
-         px: {xs:1,sm:1.5,md:1.5},
+          py: { xs: 0.5, sm: 1.5, md: 1.5 },
+          px: { xs: 1, sm: 1.5, md: 1.5 },
           borderRadius: "10px",
           fontSize: "13px",
           fontWeight: 600,
-            minWidth:"550px",
+          minWidth: "550px",
           color: "#475569",
           // overflowX: "auto",
         }}
@@ -80,36 +54,38 @@ export default function TaskTable() {
         <HeaderCell label="Course" />
         <HeaderCell label="Type" />
         <HeaderCell label="Due Date" />
-        <HeaderCell label="File" />
-        <HeaderCell label="Status" width={'15%'} />
-        <HeaderCell label="" width='5%'/>
+        {/* <HeaderCell label="File" /> */}
+        <HeaderCell label="Status" width='15%' />
+        <HeaderCell label="Details" width='15%' />
+        <HeaderCell label="" width='5%' />
       </Box>
 
       {/* Rows */}
-      {tasks.map((item, i) => (
+      {isLoading && <> <Box sx={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "250px" }}>  <CircularProgress color="inherit" size="30px" /> </Box></>}
+      {!isLoading && assignments?.map((item, i) => (
         <Box
           key={i}
           sx={{
             display: "flex",
-            gap:"5px",
+            gap: "5px",
             background: "#fff",
-            py: {xs:0.5,sm:1.5,md:1.5},
-            px: {xs:1,sm:1.5,md:1.5},
+            py: { xs: 0.5, sm: 1.5, md: 1.5 },
+            px: { xs: 1, sm: 1.5, md: 1.5 },
             borderRadius: "10px",
             mt: 1.2,
             boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
             transition: "0.2s",
             alignItems: "center",
-            minWidth:"550px",
+            minWidth: "550px",
             // overflowX: "auto",
             "&:hover": { boxShadow: "0 3px 12px rgba(0,0,0,0.12)" },
           }}
         >
-          <RowCell>{item.task.slice(0, 35)}</RowCell>
-          <RowCell>{item.course}</RowCell>
-          <RowCell>{item.type}</RowCell>
-          <RowCell>{item.due}</RowCell>
-          <RowCell>{item.file}</RowCell>
+          <RowCell>{item?.description?.slice(0, 35)}</RowCell>
+          <RowCell>{item?.courseId?.title}</RowCell>
+          <RowCell>{item?.type}</RowCell>
+          <RowCell>{item?.dueDate?.slice(0, 10)}</RowCell>
+          {/* <RowCell>{item?.fileType}</RowCell> */}
 
           {/* Status Chip */}
           <Box
@@ -145,13 +121,31 @@ export default function TaskTable() {
             )}
           </Box>
 
+          <Box sx={{ width: "15%" }}>  <Button
+            onClick={() => viewModal(item)}
+            sx={{
+
+              px: 2,
+              // width: "150px",
+              height: "35px",
+              borderRadius: "6px",
+              // border: "2px solid #1258ad",
+              background: "var(--primary-color)",
+              color: "#fff",
+              textTransform: "capitalize",
+              fontSize: "13px",
+              ":hover": { backgroundColor: "#1258ad" },
+            }}
+          >
+            View
+          </Button></Box>
           {/* Actions */}
           <Box sx={{ width: "5%", textAlign: "right" }}>
             <IconButton
               aria-label="more"
               aria-controls={open ? "menu" : undefined}
               aria-haspopup="true"
-              onClick={handleClick}
+              onClick={(e) => handleClick(e, item)}
             >
               <MoreVertIcon fontSize="small" />
             </IconButton>
@@ -170,12 +164,34 @@ export default function TaskTable() {
               }}
             >
               {options.map((option) => (
-                <MenuItem key={option} onClick={handleClose}>
-                  {option}
+                <MenuItem key={option} onClick={() => {
+                  if (option === 'Delete') {
+                    askDelete({ _id: selectedItem._id, courseId: selectedItem?.courseId?._id })
+                  } else if (option === 'Change Status') {
+                    handleUpdate(
+                      selectedItem?._id,
+                      { status: selectedItem?.status === "Pending" ? "Completed" : "Pending" }
+                    )
+                  } else if(option === 'Edit') {
+                    navigate(`/create/assignment?type=edit&id=${selectedItem._id}`)
+                  }
+                  handleClose()
+
+                }
+                }>
+                  {option === "Change Status"
+                    ? selectedItem?.status === "Completed"
+                      ? "Pending"
+                      : "Completed"
+                    : option}
+
+                  {/* {option} */}
                 </MenuItem>
               ))}
             </Menu>
           </Box>
+
+
         </Box>
       ))}
     </Box>
@@ -188,7 +204,7 @@ const HeaderCell = ({ label, width }) => (
     sx={{
       width: width || "20%",
       // minWidth: width ? "0px":"120px",
-     fontSize: {xs:'11px',sm:"13px",md:"13px"},
+      fontSize: { xs: '11px', sm: "13px", md: "13px" },
       fontWeight: 700,
     }}
   >
@@ -202,7 +218,7 @@ const RowCell = ({ children }) => (
     sx={{
       width: "20%",
       // minWidth: "120px",
-      fontSize: {xs:'11px',sm:"13px",md:"13px"},
+      fontSize: { xs: '11px', sm: "13px", md: "13px" },
       color: "#334155",
       display: "flex",
       alignItems: "center",

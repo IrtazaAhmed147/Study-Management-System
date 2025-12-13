@@ -4,7 +4,7 @@ const inviteSchema = new mongoose.Schema(
   {
     senderId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     receiverId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course" },
+    courseId: { type: mongoose.Schema.Types.ObjectId, ref: "course" },
     status: { type: String, default: "pending" } // pending, accepted, rejected
   },
   { timestamps: true }

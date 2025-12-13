@@ -103,15 +103,17 @@ export const login = async (req, res) => {
             user.otp = otp;
             user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 min
 
-            await user.save();
+          let savedUser=  await user.save();
 
             // Send email
+            const token = GenerateToken({ data: savedUser, expiresIn: '10m' });
             await generateEmail(user.email, otp);
 
             return successHandler(
                 res,
                 200,
-                "Account exists but not verified. OTP sent for verification."
+                "Account exists but not verified. OTP sent for verification.",
+                {tempToken:token}
             );
         }
 
@@ -213,7 +215,7 @@ export const forgotPassword = async (req, res) => {
         user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
         await user.save();
 
-        const link = `https://myidea.vercel.app/reset-password?token=${token}`;
+        const link = `http://localhost:5173/reset-password?token=${token}`;
         
         // Send email
         await generateForgotPassEmail(user.email, link);

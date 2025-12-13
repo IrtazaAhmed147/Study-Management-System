@@ -5,6 +5,7 @@ const initialState = {
     token: localStorage.getItem("token") || null,
     isLoading: false,
     error: false,
+
 }
 const authSlice = createSlice({
     name: 'auth',
@@ -24,6 +25,10 @@ const authSlice = createSlice({
         loginFailure: (state, action) => {
             state.isLoading = false;
             state.error = action.payload;
+        },
+          otpSuccess: (state) => {
+            state.isLoading = false
+            state.error = null
         },
         signupStart: (state) => {
             state.isLoading = true
@@ -45,5 +50,5 @@ const authSlice = createSlice({
     }
 })
 
-export const { loginStart, loginSuccess, loginFailure, signupStart, signupSuccess, signupFailure,userReset } = authSlice.actions
+export const { loginStart, loginSuccess, loginFailure, signupStart, signupSuccess, signupFailure,userReset,otpSuccess } = authSlice.actions
 export default authSlice.reducer

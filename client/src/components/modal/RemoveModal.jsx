@@ -8,7 +8,7 @@ export default function RemoveModal({ open, onClose, onConfirm, title, descripti
       open={open}
       onClose={onClose}
       PaperProps={{
-        sx: { borderRadius: "16px", p: 2, width: "360px" },
+        sx: { borderRadius: "16px", p: 2, minWidth: "360px" },
       }}
     >
       <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>

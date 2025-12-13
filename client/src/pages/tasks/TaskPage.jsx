@@ -1,15 +1,73 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import TaskTable from '../../components/tables/TaskTable'
 import { Box, MenuItem, Select, Typography, TextField } from '@mui/material'
+import { useDispatch, useSelector } from 'react-redux'
+import { deleteAssignmentAction, getSingleAssignmentAction, getUserAssignmentsAction, updateAssignmentAction } from '../../redux/actions/assignmentActions'
+import AssignmentDetailModal from '../../components/modal/AssignmentDetailModal'
+import RemoveModal from '../../components/modal/RemoveModal'
+import { notify } from '../../utils/HelperFunctions'
 
 function TaskPage() {
+
+  const dispatch = useDispatch()
+  const { isLoading, assignments } = useSelector((state) => state.assignments)
+  const [isModal, setIsModal] = useState(false);
+  const [updateData, setUpdateData] = useState({})
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const [removeModalState, setRemoveModalState] = useState(false);
+  useEffect(() => {
+    dispatch(getUserAssignmentsAction()).then((data) => console.log(data)
+    );
+
+  }, [])
+
+
+  const handleUpdate = (id, data) => {
+    // console.log(ids);
+
+    dispatch(updateAssignmentAction(id, data))
+      .then((msg) => {
+        notify('success', msg);
+        dispatch(getUserAssignmentsAction());
+      })
+      .catch((err) => {
+
+        notify('error', err)
+
+        dispatch(getUserAssignmentsAction());
+      });
+
+
+  }
+  const deleteCourse = (ids) => {
+    console.log(ids);
+
+    dispatch(deleteAssignmentAction(ids._id, ids.courseId))
+      .then((msg) => {
+        notify('success', msg);
+        dispatch(getUserAssignmentsAction());
+      })
+      .catch((err) => {
+
+        notify('error', err)
+
+        dispatch(getUserAssignmentsAction());
+      });
+
+
+  }
+
+
   return (
     <Box
       sx={{
         minHeight: '100vh',
         width: '100%',
         backgroundColor: 'var(--bg-color)',
-         padding: { xs: "10px", sm: "20px", md: "20px" }, pt:"5px !important",
+        padding: { xs: "10px", sm: "20px", md: "20px" }, pt: "5px !important",
       }}
     >
       {/* Page Title */}
@@ -102,7 +160,37 @@ function TaskPage() {
       </Box>
 
       {/* Task Table */}
-      <TaskTable />
+
+      <TaskTable assignments={assignments}
+        // setUpdateData={setUpdateData}
+        // setSelectedCourseId={setSelectedCourseId}
+        isLoading= {isLoading}
+        handleUpdate={handleUpdate}
+        setSelectedItem={setSelectedItem}
+        selectedItem={selectedItem}
+        askDelete={(ids) => {
+          setSelectedCourseId(ids);
+          setRemoveModalState(true);
+        }} viewModal={(item) => {
+          setSelectedAssignment(item);
+          setIsModal(true);
+        }} />
+
+      {isModal && <AssignmentDetailModal open={isModal}
+        handleClose={() => setIsModal(false)} assignment={selectedAssignment} />}
+
+      {removeModalState && <RemoveModal
+        open={removeModalState}
+        onClose={() => setRemoveModalState(false)}
+        onConfirm={() => {
+          deleteCourse(selectedCourseId);
+          setRemoveModalState(false);
+        }}
+        title='Delete Assignment Confirmation'
+        description='By deleting this course, all associated materials including assignments, quizzes, and other related content will also be permanently removed. This action cannot be undone'
+      />}
+
+
     </Box>
   )
 }

@@ -1,5 +1,5 @@
 import { Box, Button, Grid, Paper, Typography } from '@mui/material'
-import React from 'react'
+import React, { useEffect } from 'react'
 import LandingNavbar from '../../components/navbar/LandingNavbar'
 import FeatureCard from '../../components/cards/FeatureCard'
 import BookIcon from '@mui/icons-material/Book';
@@ -7,9 +7,18 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import QuizIcon from '@mui/icons-material/Quiz';
 import NoteIcon from '@mui/icons-material/Note';
 import LandingPageFooter from '../../components/footer/LandingPageFooter';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 function LandingPage() {
+
+  const navigate = useNavigate()
+  const { user } = useSelector((state) => state.auth)
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard')
+    }
+  }, [user])
 
   const features = [
     { icon: <BookIcon sx={{ fontSize: 50, color: '#2A7DE1' }} />, title: 'Courses', description: 'All your courses in one place.' },

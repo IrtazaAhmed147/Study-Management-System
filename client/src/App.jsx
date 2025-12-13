@@ -2,9 +2,6 @@ import { Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import Layout from './layout/Layout';
 import Dashboard from './pages/dashboard/Dashboard.jsx';
-import Login from './pages/login/Login.jsx';
-import Signup from './pages/signup/Signup.jsx';
-import Otp from './pages/otp/Otp.jsx';
 import NotFound from './pages/notFound/NotFound.jsx';
 import SingleCourse from './pages/courses/SingleCourse.jsx';
 import Setting from './pages/settings/Setting.jsx';
@@ -20,6 +17,11 @@ import UpdateProfilePage from './pages/profile/UpdateProfilePage.jsx';
 import LandingPage from './pages/landingPage/LandingPage.jsx';
 import PrivacyPolicyPage from './pages/policy and conditions/PrivacyPolicyPage.jsx';
 import TermsConditionPage from './pages/policy and conditions/TermsConditionPage.jsx';
+import Login from './pages/auth/Login.jsx';
+import Signup from './pages/auth/Signup.jsx';
+import Otp from './pages/auth/Otp.jsx';
+import ForgotPass from './pages/auth/forgotPass.jsx';
+import ResetPass from './pages/auth/ResetPass.jsx';
 
 function App() {
   return (
@@ -39,10 +41,12 @@ function App() {
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPass />} />
+        <Route path="/reset-password" element={<ResetPass />} />
         <Route path="/otp" element={<Otp />} />
-          <Route index element={<LandingPage />} /> 
-          <Route path='/privacypolicy' element={<PrivacyPolicyPage />} /> 
-          <Route path='/termsandcondition' element={<TermsConditionPage />} /> 
+        <Route index element={<LandingPage />} />
+        <Route path='/privacypolicy' element={<PrivacyPolicyPage />} />
+        <Route path='/termsandcondition' element={<TermsConditionPage />} />
 
         <Route element={<Layout />}>
           <Route path='/dashboard' element={<Dashboard />} />

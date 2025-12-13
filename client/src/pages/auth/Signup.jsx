@@ -5,7 +5,7 @@ import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import '../login/login.css'
+import './login.css'
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../../redux/actions/authActions';
 import { Box, CircularProgress, MenuItem, Select, Typography } from '@mui/material';
