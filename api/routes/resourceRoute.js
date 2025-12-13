@@ -1,7 +1,7 @@
 import express from 'express'
 // import {  login, logout, register, verifyEmail } from '../controllers/courseController.js'
 import { verifyAdmin, verifyToken } from '../middleware/verifyToken.js'
-import { deleteResource, getAllResources, getCourseResources, getSingleResource, uploadResource } from '../controllers/resourceController.js';
+import { deleteAllResource, deleteResource, getAllResources, getCourseResources, getSingleResource, uploadResource } from '../controllers/resourceController.js';
 import multer from 'multer';
 
 const resourceRouter = express.Router()
@@ -15,6 +15,7 @@ resourceRouter.get("/all", verifyToken,verifyAdmin, getAllResources);
 resourceRouter.get("/courses/:id/", verifyToken, getCourseResources);
 resourceRouter.get("/:id", getSingleResource);
 resourceRouter.delete("/:id/course/:courseId", verifyToken, deleteResource);
+resourceRouter.delete("/course/:courseId", verifyToken, deleteAllResource);
 // resourceRouter.put("/:id", verifyToken, updateResource);
 
 

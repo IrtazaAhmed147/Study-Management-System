@@ -22,6 +22,7 @@ import Signup from './pages/auth/Signup.jsx';
 import Otp from './pages/auth/Otp.jsx';
 import ForgotPass from './pages/auth/forgotPass.jsx';
 import ResetPass from './pages/auth/ResetPass.jsx';
+import AddResource from './pages/resource/AddResource.jsx';
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
           <Route path='/update/profile/:username' element={<UpdateProfilePage />} />
           <Route path='/courses' element={<CoursePage />} />
           <Route path='/add/course' element={<AddCoursePage />} />
+          <Route path='/add/resources/:courseId' element={<AddResource />} />
           <Route path='/course/:courseId' element={<SingleCourse />} />
           <Route path='/task/:aId' element={<TaskPage />} />
           <Route path='/create/assignment' element={<AddAssignmentPage />} />

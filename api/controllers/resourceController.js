@@ -127,6 +127,32 @@ export const deleteResource = async (req, res) => {
         errorHandler(res, 400, err.message);
     }
 };
+export const deleteAllResource = async (req, res) => {
+    try {
+        const resources = await resourceModel.find({ courseId: req.params.courseId });
+        console.log(resources);
+        
+        if (!resources) return errorHandler(res, 404, "Resource not found");
+        for (const resource of resources) {
+
+
+            await deleteFromCloudinary(resource.publicId);
+            await resourceModel.findByIdAndDelete(resource._id);
+            await courseModel.findByIdAndUpdate(resource?.courseId?.toString(), {
+                $pull: { resources: resource._id }
+            });
+
+        }
+
+
+        successHandler(res, 200, "Resource deleted successfully");
+
+
+    } catch (err) {
+        console.log(err);
+        errorHandler(res, 400, err.message);
+    }
+};
 
 
 // export const updateResource = async (req, res) => {

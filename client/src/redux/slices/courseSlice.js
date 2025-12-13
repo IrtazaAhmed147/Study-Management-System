@@ -2,8 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     courses: [],           // all courses
-    singleCourse: null,    // course detail page
-    isLoading: false,
+    singleCourse: {},    // course detail page
+    courseIsLoading: false,
     error: null,
 };
 
@@ -14,15 +14,15 @@ const courseSlice = createSlice({
 
         // FETCH ALL COURSES
         fetchCoursesStart: (state) => {
-            state.isLoading = true;
+            state.courseIsLoading = true;
             state.error = null;
         },
         fetchCoursesSuccess: (state, { payload }) => {
-            state.isLoading = false;
+            state.courseIsLoading = false;
             state.courses = payload;
         },
         fetchCoursesFailure: (state, action) => {
-            state.isLoading = false;
+            state.courseIsLoading = false;
             state.error = action.payload;
             console.log(state.error);
             
@@ -30,29 +30,29 @@ const courseSlice = createSlice({
 
         // FETCH SINGLE COURSE
         fetchSingleCourseStart: (state) => {
-            state.isLoading = true;
+            state.courseIsLoading = true;
             state.error = null;
         },
         fetchSingleCourseSuccess: (state, { payload }) => {
-            state.isLoading = false;
+            state.courseIsLoading = false;
             state.singleCourse = payload;
         },
         fetchSingleCourseFailure: (state, action) => {
-            state.isLoading = false;
+            state.courseIsLoading = false;
             state.error = action.payload;
         },
 
         // CREATE COURSE
         createCourseStart: (state) => {
-            state.isLoading = true;
+            state.courseIsLoading = true;
             state.error = null;
         },
         createCourseSuccess: (state, { payload }) => {
-            state.isLoading = false;
+            state.courseIsLoading = false;
             state.courses.push(payload);
         },
         createCourseFailure: (state, action) => {
-            state.isLoading = false;
+            state.courseIsLoading = false;
             state.error = action.payload;
         },
 

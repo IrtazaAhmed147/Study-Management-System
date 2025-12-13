@@ -12,7 +12,7 @@ export const createCourse = async (req, res) => {
     try {
 
         const { title, description, courseCode } = req.body;
-        if (!title.trim() ) {
+        if (!title.trim()) {
             return errorHandler(res, 404, "missing fields")
         }
 
@@ -50,7 +50,15 @@ export const getAllcourses = async (req, res) => {
 
 export const getSinglecourse = async (req, res) => {
     try {
-        const courseData = await course.findById(req.params.id);
+        const courseData = await course.findById(req.params.id).populate({
+            path: "assignments",
+            populate: {
+                path: "courseId",
+                select: "title",
+                model: "course",
+            }
+        });
+
         if (!courseData) return errorHandler(res, 404, "course not found")
         successHandler(res, 200, "course found successfully", courseData)
     }
@@ -64,7 +72,7 @@ export const getUserCourses = async (req, res) => {
     try {
         const { courseName, courseType } = req.query;
         console.log(req.query);
-        
+
         const filter = {};
         if (courseName) {
             filter.title = { $regex: courseName, $options: "i" }; // better search
