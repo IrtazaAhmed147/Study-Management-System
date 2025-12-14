@@ -268,3 +268,4 @@ export const resetPass = async (req, res) => {
         return errorHandler(res, 500, "Something went wrong");
     }
 };
+

@@ -23,9 +23,24 @@ export const getAllUsers = async (req, res) => {
 }
 
 
+export const getLoginUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select("-password");
+
+        if (!user) {
+            return errorHandler(res, 404, "User not found");
+        }
+        successHandler(res, 200, "User found successfully", user)
+
+
+    } catch (err) {
+        errorHandler(res, 500, err.message);
+    }
+};
 export const getSingleUser = async (req, res) => {
     try {
         const userData = await User.findById(req.params.id);
+
         if (!userData) return errorHandler(res, 404, "user not found")
         successHandler(res, 200, "User found successfully", userData)
     }

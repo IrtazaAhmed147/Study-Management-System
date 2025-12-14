@@ -24,7 +24,6 @@ function Navbar() {
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
     localStorage.removeItem('token');
     dispatch(userReset());
     navigate('/login');

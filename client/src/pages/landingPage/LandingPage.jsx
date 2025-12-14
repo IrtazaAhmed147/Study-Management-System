@@ -20,12 +20,6 @@ function LandingPage() {
     }
   }, [user])
 
-  const features = [
-    { icon: <BookIcon sx={{ fontSize: 50, color: '#2A7DE1' }} />, title: 'Courses', description: 'All your courses in one place.' },
-    { icon: <AssignmentIcon sx={{ fontSize: 50, color: '#2A7DE1' }} />, title: 'Assignments', description: 'Track and manage all your tasks easily.' },
-    { icon: <QuizIcon sx={{ fontSize: 50, color: '#2A7DE1' }} />, title: 'Quizzes', description: 'Prepare and test your knowledge anytime.' },
-    { icon: <NoteIcon sx={{ fontSize: 50, color: '#2A7DE1' }} />, title: 'Notes', description: 'Keep your study notes organized and accessible.' },
-  ];
   return (
     <>
 

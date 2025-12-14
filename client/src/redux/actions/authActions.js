@@ -1,5 +1,5 @@
 import api from '../../utils/common.js'
-import { loginFailure, loginStart, loginSuccess, signupStart, signupSuccess, signupFailure, otpSuccess } from "../slices/authSlice"
+import { loginFailure, loginStart, loginSuccess, signupStart, signupSuccess, signupFailure, otpSuccess, loadUserSuccess, loadUserFailure, loadUserStart, userReset } from "../slices/authSlice"
 
 
 export const registerUser = (credentials) => async (dispatch) => {
@@ -48,8 +48,8 @@ export const loginUser = (credentials) => async (dispatch) => {
     } catch (error) {
         console.log(error);
         
-        dispatch(loginFailure(error.response.data.message))
-        throw error.response.data.message
+        dispatch(loginFailure(error.response?.data?.message))
+        throw error.response?.data?.message
     }
 }
 
@@ -82,17 +82,11 @@ export const resetPassAction = (ceredentials) => async (dispatch) => {
 
     try {
         dispatch(loginStart())
-
         const res = await api.post('/auth/resetPassword', ceredentials, {
-
             withCredentials: true
         })
-
         console.log(res?.data);
-      
-            
-            // localStorage.setItem("token", res?.data?.token)
-            dispatch(otpSuccess())
+      dispatch(otpSuccess())
             return res.data.message
         
     } catch (error) {
@@ -102,3 +96,26 @@ export const resetPassAction = (ceredentials) => async (dispatch) => {
         throw error.response.data.message
     }
 }
+export const fetchLoggedInUser = () => async (dispatch) => {
+  try {
+    dispatch(loginStart());
+
+    const token = localStorage.getItem("token");
+
+    const res = await api.get("/user/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(res.data);
+    
+
+    dispatch(loginSuccess(res.data.data));
+
+  } catch (err) {
+    console.log(err);
+    
+    localStorage.removeItem("token");
+    dispatch(userReset());
+  }
+};

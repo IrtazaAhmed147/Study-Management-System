@@ -23,8 +23,31 @@ import Otp from './pages/auth/Otp.jsx';
 import ForgotPass from './pages/auth/forgotPass.jsx';
 import ResetPass from './pages/auth/ResetPass.jsx';
 import AddResource from './pages/resource/AddResource.jsx';
+import { useEffect } from 'react';
+import { fetchLoggedInUser } from './redux/actions/authActions.js';
+import ProtectedRoute from './components/protectedRoute/protectedRoute.jsx';
+import { useDispatch } from 'react-redux';
+import { logout } from './redux/slices/authSlice.js';
 
 function App() {
+
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    console.log(token);
+
+    if (token) {
+      console.log("chala");
+
+      dispatch(fetchLoggedInUser());
+    } else {
+      console.log('logout');
+
+      dispatch(logout());
+    }
+  }, []);
+
   return (
     <>
       <ToastContainer
@@ -49,22 +72,24 @@ function App() {
         <Route path='/privacypolicy' element={<PrivacyPolicyPage />} />
         <Route path='/termsandcondition' element={<TermsConditionPage />} />
 
-        <Route element={<Layout />}>
-          <Route path='/dashboard' element={<Dashboard />} />
-          <Route path='/profile/:username' element={<ProfilePage />} />
-          <Route path='/update/profile/:username' element={<UpdateProfilePage />} />
-          <Route path='/courses' element={<CoursePage />} />
-          <Route path='/add/course' element={<AddCoursePage />} />
-          <Route path='/add/resources/:courseId' element={<AddResource />} />
-          <Route path='/course/:courseId' element={<SingleCourse />} />
-          <Route path='/task/:aId' element={<TaskPage />} />
-          <Route path='/create/assignment' element={<AddAssignmentPage />} />
-          <Route path='/create/quiz' element={<AddQuizPage />} />
-          <Route path='/friends/:friendId' element={<FriendsPage />} />
-          <Route path='/notification/:userId' element={<Notification />} />
-          <Route path='/setting' element={<Setting />} />
-        </Route>
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout />}>
+            <Route path='/dashboard' element={<Dashboard />} />
+            <Route path='/profile' element={<ProfilePage />} />
+            <Route path='/update/profile/:username' element={<UpdateProfilePage />} />
+            <Route path='/courses' element={<CoursePage />} />
+            <Route path='/add/course' element={<AddCoursePage />} />
+            <Route path='/add/resources/:courseId' element={<AddResource />} />
+            <Route path='/course/:courseId' element={<SingleCourse />} />
+            <Route path='/task/:aId' element={<TaskPage />} />
+            <Route path='/create/assignment' element={<AddAssignmentPage />} />
+            <Route path='/create/quiz' element={<AddQuizPage />} />
+            <Route path='/friends/:friendId' element={<FriendsPage />} />
+            <Route path='/notification/:userId' element={<Notification />} />
+            <Route path='/setting' element={<Setting />} />
+          </Route>
 
+        </Route>
 
 
 

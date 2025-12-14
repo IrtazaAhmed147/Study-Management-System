@@ -11,13 +11,14 @@ import ChevronLeftOutlinedIcon from '@mui/icons-material/ChevronLeftOutlined';
 import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import { Link, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 function Sidebar({ collapsed, setCollapsed, mobileSidebar }) {
 
   const location = useLocation();
 
   // console.log(location.pathname);
-
+  const {user} = useSelector((state)=> state.auth)
 
   const listItems = [
     { name: "Dashboard", icon: <DashboardOutlinedIcon />, path: "/dashboard" },
@@ -116,7 +117,7 @@ function Sidebar({ collapsed, setCollapsed, mobileSidebar }) {
 
       {/* -------- User Info -------- */}
 
-      <Link to={`/profile/123`}>
+      <Link to={`/profile`}>
         <Box
           sx={{
             border: '1px solid #ddd',
@@ -133,16 +134,16 @@ function Sidebar({ collapsed, setCollapsed, mobileSidebar }) {
         >
           <img
             style={{ borderRadius: '50%', height: '100%' }}
-            src="https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
+            src={user?.profilePic || "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"}
             alt=""
           />
           {!collapsed && (
             <Box sx={{ marginLeft: '8px', overflow: 'hidden' }}>
               <Typography color='var(--text-color)' fontSize={'15px'} fontWeight={'bold'} >
-                user example
+                {user?.username}
               </Typography>
               <Typography color='#6d6d6dff' fontSize={'12px'}>
-                example@gmail.com
+                {user?.email}
               </Typography>
             </Box>
           )}
